@@ -1,0 +1,34 @@
+<IfModule mod_rewrite.c>
+    # mod_rewrite es un módulo de Apache que permite reescribir URLs
+    # Traducción: "Habilitar motor de reescritura de URLs"
+
+    RewriteEngine On
+    # Activa el motor de reescritura (rewrite engine)
+    # Traducción: "RewriteEngine" = Motor de reescritura
+
+    RewriteBase /Organizacion_Modulos/
+    # Define la ruta base del proyecto dentro del servidor web
+    # Esto es necesario cuando el proyecto no está en la raíz del dominio
+    # Ej: http://localhost/Organizacion_Modulos/ -> /Organizacion_Modulos/
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # RewriteCond = Condición de reescritura
+    # %{REQUEST_FILENAME} = el nombre del archivo solicitado
+    # !-f = NO es un archivo real que exista en el disco
+    # Es decir: "si el archivo solicitado NO existe físicamente..."
+
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # !-d = NO es un directorio real que exista en el disco
+    # Es decir: "si el directorio solicitado NO existe físicamente..."
+
+    RewriteRule ^(.*)$ index.php [QSA,L]
+    # RewriteRule = Regla de reescritura
+    # ^(.*)$ = cualquier URL que haya ingresado el usuario
+    # index.php = redirigir todo a index.php (Front Controller)
+    # QSA = Query String Append (agrega los parámetros GET existentes)
+    # L = Last (última regla, no procesar más)
+
+    # En resumen: Toda URL que no sea un archivo o carpeta real
+    # se redirige a index.php para que el Router la procese.
+    # Esto permite URLs amigables como /medicos, /prescripciones, etc.
+</IfModule>
