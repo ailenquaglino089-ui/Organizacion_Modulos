@@ -92,25 +92,30 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
         <!-- ============================================================
         MENÚ DE NAVEGACIÓN EN CUADRÍCULA
         ============================================================ -->
+        <!-- Cuadrícula de tarjetas de navegación principal -->
         <div class="grid-menu">
+            <!-- Tarjeta: acceso al listado de recetas electrónicas -->
             <a href="<?php echo $basePath; ?>/prescripciones" class="menu-card">
                 <div style="font-size: 36px;">📄</div>
                 <strong>Mis Recetas</strong>
                 <small style="color: #64748b;">Ver todas</small>
             </a>
 
+            <!-- Tarjeta: acceso al centro de notificaciones y alertas -->
             <a href="<?php echo $basePath; ?>/notificaciones" class="menu-card">
                 <div style="font-size: 36px;">🔔</div>
                 <strong>Notificaciones</strong>
                 <small style="color: #64748b;">Alertas y avisos</small>
             </a>
 
+            <!-- Tarjeta: acceso al listado de prestaciones médicas -->
             <a href="<?php echo $basePath; ?>/prestaciones" class="menu-card">
                 <div style="font-size: 36px;">🏥</div>
                 <strong>Prestaciones</strong>
                 <small style="color: #64748b;">Servicios</small>
             </a>
 
+            <!-- Tarjeta: buscador de farmacias cercanas -->
             <a href="<?php echo $basePath; ?>/buscador-farmacias" class="menu-card">
                 <div style="font-size: 36px;">💊</div>
                 <strong>Farmacias</strong>

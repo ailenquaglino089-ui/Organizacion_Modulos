@@ -102,15 +102,17 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
     ============================================================ -->
     <div class="content">
 
-        <!-- Sección: Notificaciones -->
+        <!-- Sección: Notificaciones - Configuración de alertas del sistema -->
         <div class="section">
             <h2 class="section-title">🔔 Notificaciones</h2>
+            <!-- Grupo: activar/desactivar avisos de nuevas prescripciones -->
             <div class="settings-group">
                 <div class="settings-row">
                     <span class="settings-label">Avisos de prescripciones</span>
                     <input type="checkbox" checked>
                 </div>
             </div>
+            <!-- Grupo: activar/desactivar recordatorios de toma de medicamentos -->
             <div class="settings-group">
                 <div class="settings-row">
                     <span class="settings-label">Recordatorios de medicamentos</span>
@@ -119,38 +121,45 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
             </div>
         </div>
 
-        <!-- Sección: Privacidad y Seguridad -->
+        <!-- Sección: Privacidad y Seguridad - 2FA y control de acceso -->
         <div class="section">
             <h2 class="section-title">🔒 Privacidad y Seguridad</h2>
+            <!-- Grupo: muestra estado actual de la autenticación de dos factores -->
             <div class="settings-group">
                 <div class="settings-row">
                     <span class="settings-label">Autenticación de dos factores</span>
                     <span class="settings-value">No activado</span>
                 </div>
             </div>
+            <!-- Botón para activar 2FA (simulado con alerta) -->
             <button class="btn btn-primary" onclick="alert('Función de 2FA')">🔐 Activar 2FA</button>
         </div>
 
-        <!-- Sección: Contacto y Soporte -->
+        <!-- Sección: Contacto y Soporte - canales de comunicación -->
         <div class="section">
             <h2 class="section-title">📞 Contacto y Soporte</h2>
+            <!-- Iconos de contacto: WhatsApp y correo electrónico -->
             <div class="contact-icons">
                 <a href="https://wa.me/541234567890" target="_blank" class="social-link whatsapp-link" title="WhatsApp">💬</a>
                 <a href="mailto:soporte@saludweb.com" class="social-link gmail-link" title="Email">✉️</a>
             </div>
+            <!-- Texto alternativo con los datos de contacto -->
             <p style="color: #64748b;">WhatsApp: +54 9 11 1234-5678 | Email: soporte@saludweb.com</p>
         </div>
 
-        <!-- Sección: Centro de Ayuda -->
+        <!-- Sección: Centro de Ayuda - recursos de documentación -->
         <div class="section">
             <h2 class="section-title">❓ Centro de Ayuda</h2>
+            <!-- Enlace a preguntas frecuentes -->
             <a href="<?php echo $basePath; ?>/faq" class="btn btn-secondary">📖 Ver Preguntas Frecuentes</a>
+            <!-- Enlace a documentación completa (placeholder) -->
             <a href="#" class="btn btn-secondary">📚 Ver Documentación</a>
         </div>
 
-        <!-- Sección: Administración de datos -->
+        <!-- Sección: Administración de datos - gestión de cuenta -->
         <div class="section">
             <h2 class="section-title">📊 Mis Datos</h2>
+            <!-- Botón de peligro: eliminar cuenta con confirmación previa -->
             <button class="btn btn-danger" onclick="if(confirm('¿Deseas eliminar tu cuenta?')) { alert('Cuenta eliminada'); }">🗑️ Eliminar Cuenta</button>
         </div>
 

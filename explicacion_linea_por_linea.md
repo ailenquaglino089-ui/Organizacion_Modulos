@@ -251,3 +251,210 @@ Este archivo actúa como menú principal interactivo para el usuario final (paci
     *   Última sincronización (Dinámica): **Usa PHP `<?php echo date('d/m/Y H:i'); ?>`** para consultar en el servidor la fecha y hora actuales e imprimirlas formateadas en tiempo real.
     *   Versión: Muestra la versión actual de la plataforma ("3.0").
 *   **Líneas 184 a 187 (`</div>`, `</div>`, `</body>`, `</html>`):** Cierran secuencialmente el panel principal del dashboard, el cuerpo de la página y el archivo HTML.
+
+---
+
+## 6. db.php — Conexión a Base de Datos y Esquema
+
+Este archivo conecta a MySQL, crea la base de datos, define todas las tablas con sus claves foráneas e inserta datos de ejemplo.
+
+### Configuración Inicial y Conexión PDO (Líneas 1-37)
+*   **Líneas 1-10 (Encabezado):** `<?php` abre la etiqueta PHP. El bloque de comentarios (`//`) describe que el archivo maneja conexión MySQL, creación de tablas y datos de ejemplo.
+*   **Líneas 12-18 (Reporte de Errores):** `ini_set('display_errors', 1)` obliga a mostrar errores en pantalla. `error_reporting(E_ALL)` reporta todo tipo de errores (advertencias, notices). Esto ayuda durante el desarrollo a detectar problemas.
+*   **Líneas 20-27 (Variables de Entorno):** `getenv('DB_HOST') ?: 'localhost'` lee variables de entorno del sistema operativo. El operador `?:` (Elvis) usa el valor por defecto si la variable no existe. Así se configura: `$host` (servidor), `$dbName` (nombre de BD), `$user` (usuario MySQL), `$pass` (contraseña, vacía por defecto en XAMPP).
+*   **Líneas 29-37 (PDO):** `new PDO("mysql:host=$host;charset=utf8mb4", ...)` crea la conexión a MySQL sin especificar base de datos para poder crearla después. `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION` hace que los errores se lancen como excepciones. `PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC` devuelve resultados como arrays asociativos (`['nombre' => 'Juan']` en vez de `[0 => 'Juan']`).
+
+### Creación de Base de Datos (Líneas 39-46)
+*   **Línea 43 (`CREATE DATABASE IF NOT EXISTS ...`):** Crea la base de datos si no existe. `CHARACTER SET utf8mb4` soporta caracteres especiales (tildes, ñ, emojis). `COLLATE utf8mb4_unicode_ci` define reglas de comparación que respetan el español.
+*   **Línea 46 (`USE ...`):** Selecciona la base de datos creada para que las siguientes consultas se ejecuten dentro de ella.
+
+### Creación de Tablas (Líneas 48-131)
+*   **Líneas 57-60 (obras_sociales):** `id INT AUTO_INCREMENT PRIMARY KEY` crea un identificador único auto-incremental. `nombre_obra VARCHAR(255)` almacena el nombre (OSDE, PAMI, etc.). `ENGINE=InnoDB` es necesario para usar claves foráneas (foreign keys).
+*   **Líneas 65-74 (pacientes):** `UNIQUE KEY uniq_dni (dni)` impide que dos pacientes tengan el mismo DNI. `INDEX idx_nombre (nombre)` acelera las búsquedas por nombre. `TINYINT(1)` almacena un booleano (0/1) para activo/inactivo. `creado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP` guarda la fecha de creación automáticamente.
+*   **Líneas 79-86 (triages):** `FOREIGN KEY (id_paciente) REFERENCES pacientes(id) ON DELETE CASCADE` crea una clave foránea: si se borra un paciente, se borran sus triages automáticamente.
+*   **Líneas 89-96 (medicos):** Crea la tabla de médicos con nombre, matrícula (nullable), especialidad (nullable), activo (booleano) y fecha de creación.
+*   **Líneas 99-104 (medicamentos):** Tabla simple con nombre y descripción opcional.
+*   **Líneas 111-124 (prescripciones):** `medicamentos TEXT NOT NULL` almacena datos en formato JSON. `ON DELETE SET NULL` en la clave foránea de médicos: si se elimina un médico, la receta no se borra sino que queda sin médico asignado. Incluye campos para código QR y firma digital.
+*   **Líneas 127-131 (auditoria):** Registra acciones realizadas en el sistema (accion y fecha).
+
+### Inserción de Datos de Ejemplo (Líneas 133-183)
+*   **Líneas 139-144 (Obras Sociales):** `SELECT COUNT(*) FROM obras_sociales` cuenta las filas existentes. `fetchColumn()` devuelve el número. Si está vacío (=== 0), inserta los valores por defecto.
+*   **Líneas 147-160 (Médicos):** Usa consultas preparadas (`$pdo->prepare()`) con marcadores `?` para evitar inyección SQL. `$stmt->execute($m)` ejecuta la consulta con cada arreglo de valores. Inserta 4 médicos de ejemplo.
+*   **Líneas 163-169 (Medicamentos):** Inserta 5 medicamentos comunes usando el mismo patrón de consulta preparada.
+*   **Líneas 172-183 (Pacientes):** Inserta 3 pacientes con DNI, nombre y obra social.
+
+### Manejo de Errores (Líneas 185-199)
+*   **Línea 186 (`catch (PDOException $e)`):** Captura excepciones específicas de PDO (error de conexión). `http_response_code(500)` envía código HTTP 500 (Internal Server Error). `htmlspecialchars($e->getMessage())` sanitiza el mensaje de error para prevenir XSS. `exit` detiene la ejecución del script.
+
+---
+
+## 7. core/bootstrap.php — Archivo de Arranque (Bootstrap)
+
+*   **Líneas 1-8 (Encabezado):** Comentarios que explican que bootstrap significa "arranque" o "inicialización". Es el primer archivo que se ejecuta y prepara todo lo necesario para la aplicación.
+*   **Línea 13 (`session_start()`):** Inicia la sesión del usuario. Permite usar `$_SESSION` para guardar datos entre páginas (usuario logueado, preferencias).
+*   **Línea 16 (`require_once __DIR__ . '/Router.php'`):** Carga la clase Router (enrutador de URLs). `__DIR__` es la constante mágica que contiene la ruta del directorio actual (`core/`).
+*   **Línea 20 (`require_once __DIR__ . '/../db.php'`):** Carga la conexión a la base de datos. Esto ejecuta `db.php` que crea la variable `$pdo` (objeto PDO).
+*   **Líneas 23-29 (require_once):** Cargan secuencialmente las capas de la arquitectura: `MedicoRepository.php` (persistencia), `MedicoService.php` (negocio) y `MedicoController.php` (controlador HTTP). El orden importa: el controlador depende del servicio, y el servicio depende del repositorio.
+*   **Línea 37 (`$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/')`):** Calcula la ruta base del proyecto. `$_SERVER['SCRIPT_NAME']` contiene la ruta del script actual (ej: `/Organizacion_Modulos/index.php`). `dirname()` obtiene la carpeta padre (`/Organizacion_Modulos`). `rtrim()` saca la barra del final.
+*   **Línea 42 (`$router = new Router($basePath)`):** Crea el enrutador pasándole la ruta base para que pueda recortar el prefijo de las URLs y trabajar con rutas relativas.
+*   **Línea 47 (`$medicoRepo = new MedicoRepository($pdo)`):** Crea el repositorio inyectándole la conexión PDO. Esto es **Inyección de Dependencias**: en lugar de crear la conexión dentro del repositorio, se la pasamos desde afuera, haciendo el código más testeable y flexible.
+*   **Línea 51 (`$medicoService = new MedicoService($medicoRepo)`):** Crea el servicio inyectándole el repositorio. El servicio contiene la lógica de negocio (validaciones, reglas).
+*   **Línea 54 (Nota):** Las variables `$router`, `$medicoRepo`, `$medicoService` y `$pdo` quedan disponibles en `routes.php`, que es el archivo que incluye a `bootstrap.php`.
+
+---
+
+## 8. routes.php — Definición de Rutas
+
+Este archivo conecta cada URL que el usuario visita con el código que debe ejecutarse. Actúa como un "mapa" del sitio.
+
+*   **Línea 12 (`require_once __DIR__ . '/core/bootstrap.php'`):** Carga el bootstrap que prepara sesión, conexión DB, Router, Repositorio, Servicio y Controlador. Después de esta línea están disponibles: `$router`, `$medicoRepo`, `$medicoService`, `$pdo`.
+
+### Rutas de Páginas Web (Líneas 17-103)
+*   **Líneas 17-23 (Ruta Raíz `/`):** `$router->get('/', function() { ... })` registra una ruta GET para la URL raíz. El segundo parámetro es una función anónima (closure). `header('Location: ...')` envía una redirección HTTP al navegador. `exit` detiene la ejecución para que no siga procesando.
+*   **Líneas 28-32 (`/medicos`):** Redirige a `/notificaciones` (esta ruta actúa como placeholder).
+*   **Líneas 37-41 (`/prescripciones`):** `function () use ($pdo)` — la palabra clave `use` pasa variables del ámbito exterior a la función anónima. `include __DIR__ . '/lista_prescripciones.php'` incluye el archivo de la vista.
+*   **Líneas 46-49 (`/mis-rx`):** Incluye la página `mis_rx.php` del dashboard del paciente.
+*   **Líneas 54-56 (`/configuracion`):** Incluye la página de configuración/ajustes.
+*   **Líneas 64-92 (Rutas secundarias):** `/notificaciones`, `/prestaciones`, `/cuenta`, `/faq`, `/buscador-farmacias`, `/preguntas-frecuentes` — todas usan la misma vista genérica `views/base.php` que detecta la sección por la URL.
+*   **Líneas 98-103 (`/logout`):** `session_destroy()` destruye todos los datos de la sesión actual. Luego redirige al inicio.
+
+### API REST para Médicos (Líneas 105-149)
+*   **Línea 112 (`GET /api/medicos`):** `$controller = new MedicoController($medicoService)` crea una instancia del controlador inyectándole el servicio. `$controller->index()` llama al método que lista todos los médicos en JSON.
+*   **Línea 120 (`GET /api/medicos/{id}`):** `{id}` es un parámetro dinámico que el Router captura de la URL. `(int) $id` convierte a entero por seguridad.
+*   **Línea 127 (`POST /api/medicos`):** Ruta para crear un nuevo médico. Los datos se envían en el cuerpo de la petición como JSON.
+*   **Línea 133 (`PUT /api/medicos/{id}`):** Actualiza un médico completo (todos los campos).
+*   **Línea 140 (`PATCH /api/medicos/{id}`):** Actualiza parcialmente un médico (se usa para cambiar el estado activo/inactivo).
+*   **Línea 146 (`DELETE /api/medicos/{id}`):** Elimina un médico.
+*   **Líneas 155-159 (Manejador 404):** Si ninguna ruta coincide, redirige al listado de médicos.
+
+---
+
+## 9. core/Router.php — Enrutador de URLs
+
+Router es el componente que recibe la URL solicitada, la compara con las rutas registradas y ejecuta el código correspondiente.
+
+### Propiedades de la Clase (Líneas 14-26)
+*   **Línea 16 (`private array $routes = []`):** Arreglo donde se guardan todas las rutas registradas. Cada ruta tiene: método HTTP, path, handler (función controladora) y middlewares.
+*   **Línea 19 (`private array $middlewares = []`):** Arreglo de middlewares globales (interceptores que se ejecutan antes de las rutas).
+*   **Línea 22 (`private mixed $notFoundHandler = null`):** Función que se ejecuta cuando ninguna ruta coincide (error 404).
+*   **Línea 26 (`private string $basePath = ''`):** Ruta base del proyecto (ej: `/Organizacion_Modulos`). Se usa para recortar el prefijo de las URLs.
+
+### Constructor (Líneas 32-37)
+*   `rtrim($basePath, '/')` saca la barra del final si existe. Ej: `/Organizacion_Modulos/` → `/Organizacion_Modulos`.
+
+### Métodos para Registrar Rutas (Líneas 44-87)
+*   **`get()`, `post()`, `put()`, `patch()`, `delete()`:** Cada método corresponde a un verbo HTTP. Todos llaman internamente a `addRoute()`.
+*   **`middleware()` (Líneas 92-96):** Agrega un middleware global que se ejecuta en todas las rutas.
+*   **`notFound()` (Líneas 100-105):** Define qué hacer cuando ninguna ruta coincide.
+
+### Método Privado addRoute() (Líneas 114-123)
+*   Recibe método HTTP, path, handler y middlewares. `strtoupper($method)` convierte el método a mayúsculas. Guarda la ruta en el arreglo `$routes[]`.
+
+### Método dispatch() (Líneas 132-234) — El Corazón del Router
+*   **Línea 137 (`parse_url($uri, PHP_URL_PATH)`):** Analiza la URL y devuelve solo el path (sin query string). Ej: `/medicos?id=1` → `/medicos`.
+*   **Líneas 143-145 (Recorte del basePath):** `str_starts_with()` verifica si la URL empieza con el basePath. Si es así, `substr()` lo recorta. Ej: `/Organizacion_Modulos/medicos` → `/medicos`.
+*   **Línea 149 (`preg_replace('#/index\.php$#', '', $uri)`):** Si la URL termina en `/index.php`, lo saca.
+*   **Línea 153 (`rtrim($uri, '/') ?: '/'`):** Si después de todo queda vacío, usa `"/"` (la raíz).
+*   **Líneas 156-219 (Búsqueda de Ruta):** Itera sobre todas las rutas registradas. Si el método HTTP coincide, llama a `matchRoute()` para comparar el path. Si hay coincidencia:
+    *   **Líneas 170-181 (Middlewares):** Ejecuta los middlewares específicos de la ruta. Si algún middleware devuelve `false`, la ejecución se detiene (acceso denegado).
+    *   **Líneas 191-215 (Ejecución del Handler):** Puede ser: (1) una función anónima (closure) ejecutada con `call_user_func_array()`, (2) un string `"Controlador@metodo"` separado por `explode('@', ...)`, o (3) un string con ruta de archivo incluido con `require_once`.
+*   **Líneas 222-233 (Manejador 404):** Si ninguna ruta coincidió, ejecuta el manejador de no encontrado.
+
+### Método matchRoute() (Líneas 249-285)
+*   `explode('/', trim($routePath, '/'))` divide la ruta registrada en partes. Ej: `/api/medicos/{id}` → `["api", "medicos", "{id}"]`.
+*   Hace lo mismo con la URL solicitada.
+*   Si tienen distinta cantidad de partes, no hay match.
+*   Compara parte por parte. Si una parte empieza con `{` y termina con `}`, es un parámetro dinámico y acepta cualquier valor. Si no, debe coincidir exactamente.
+*   Devuelve un arreglo con los valores de los parámetros, o `null` si no hay match.
+
+---
+
+## 10. controllers/MedicoController.php — Controlador HTTP
+
+Es la capa que maneja peticiones HTTP y genera respuestas JSON.
+
+### Propiedades y Constructor (Líneas 17-30)
+*   `private MedicoService $service` guarda el servicio inyectado por el constructor. Tipado fuerte (`MedicoService`): PHP obliga a que sea una instancia de esa clase.
+
+### Métodos del Controlador (Líneas 36-116)
+*   **`index()` (Líneas 36-40):** `$this->service->obtenerTodos()` llama al servicio para obtener todos los médicos. `$this->jsonResponse($medicos)` devuelve la respuesta JSON con código 200 (OK).
+*   **`show(int $id)` (Líneas 48-57):** Busca un médico por ID. Si el servicio lanza `RuntimeException` (médico no encontrado), captura la excepción y devuelve error 404. Esto es **manejo de excepciones**.
+*   **`store()` (Líneas 64-80):** `file_get_contents('php://input')` lee el cuerpo crudo de la petición HTTP. `php://input` es un flujo de solo lectura que contiene el body. `json_decode(..., true)` convierte el JSON a un array asociativo de PHP. Si el servicio lanza `InvalidArgumentException`, devuelve error 400 (Bad Request). Si todo sale bien, devuelve código 201 (Created).
+*   **`update(int $id)` (Líneas 90-101):** Combina PUT y PATCH. Maneja dos tipos de excepción: `RuntimeException` (404, no encontrado) y `InvalidArgumentException` (400, datos inválidos).
+*   **`destroy(int $id)` (Líneas 108-116):** Elimina un médico. Captura `RuntimeException` si no existe.
+
+### Método jsonResponse() (Líneas 131-144)
+*   `http_response_code($status)` establece el código de respuesta HTTP.
+*   `header('Content-Type: application/json')` indica al navegador que la respuesta es JSON.
+*   `json_encode($data, JSON_UNESCAPED_UNICODE)` convierte el array a JSON sin escapar caracteres Unicode (tildes, ñ). Ej: `"Médico"` en lugar de `"M\u00e9dico"`.
+
+---
+
+## 11. services/MedicoService.php — Capa de Negocio
+
+Contiene la lógica de negocio: validaciones, reglas y transformaciones de datos.
+
+### Propiedades y Constructor (Líneas 14-27)
+*   `private MedicoRepository $repo` guarda el repositorio inyectado. El servicio NO tiene código SQL ni HTTP.
+
+### Métodos del Servicio (Líneas 35-151)
+*   **`obtenerTodos()` (Líneas 35-39):** Delega directamente al repositorio. Sin lógica adicional.
+*   **`obtenerPorId(int $id)` (Líneas 49-58):** Si el repositorio devuelve `null` (médico no encontrado), lanza `RuntimeException` con código 404. Esto convierte un "no encontrado" de datos en una excepción que el controlador capturará.
+*   **`crear(array $data)` (Líneas 68-89):** `trim($data['nombre'] ?? '')` limpia el nombre. `empty()` verifica si está vacío (null, '', false, 0, []). Si está vacío, lanza `InvalidArgumentException` con código 400. Si pasa la validación, llama al repositorio para insertar y devuelve el médico recién creado.
+*   **`actualizar(int $id, array $data)` (Líneas 102-136):** Primero verifica que el médico exista (`$this->obtenerPorId($id)`). Luego filtra SOLO los campos permitidos con `isset()`. Usa el operador ternario para convertir el campo `activo` a 1 o 0. Si después de filtrar no quedó ningún campo, lanza error. Finalmente ejecuta la actualización.
+*   **`eliminar(int $id)` (Líneas 145-151):** Verifica existencia antes de eliminar.
+
+---
+
+## 12. persistence/MedicoRepository.php — Capa de Persistencia
+
+Es la capa encargada de acceder a los datos. Solo contiene consultas SQL.
+
+### Propiedades y Constructor (Líneas 13-29)
+*   `private $pdo` guarda la conexión PDO (PHP Data Objects). El tipado no es explícito porque se inicializa en el constructor.
+
+### Métodos del Repositorio (Líneas 41-163)
+*   **`obtenerTodos()` (Líneas 41-51):** `$this->pdo->query("SELECT * FROM medicos ORDER BY activo DESC, nombre ASC")` ejecuta la consulta directamente (sin parámetros dinámicos). `fetchAll(PDO::FETCH_ASSOC)` devuelve todas las filas como arreglo asociativo.
+*   **`obtenerPorId(int $id)` (Líneas 59-77):** Usa consulta preparada con marcador `?` para prevenir inyección SQL. `$stmt->execute([$id])` ejecuta la consulta con el ID. `fetch(PDO::FETCH_ASSOC)` obtiene una sola fila. Si no hay resultados, devuelve `null` (operador `?:`).
+*   **`crear(array $data)` (Líneas 85-106):** `INSERT INTO` con marcadores `?` para los valores. `$data['matricula'] ?? null` proporciona valor por defecto si la clave no existe (null coalescing operator). `$this->pdo->lastInsertId()` devuelve el ID autogenerado por AUTO_INCREMENT.
+*   **`actualizar(int $id, array $data)` (Líneas 116-146):** Construye la consulta SQL dinámicamente según los campos recibidos. `array_key_exists()` verifica si la clave existe. `implode(', ', $campos)` une los campos SET con coma. La consulta resultante es algo como `UPDATE medicos SET nombre = ?, matricula = ? WHERE id = ?`.
+*   **`eliminar(int $id)` (Líneas 154-163):** `DELETE FROM medicos WHERE id = ?`. `$stmt->rowCount() > 0` devuelve `true` si se eliminó alguna fila, `false` si no existía.
+
+---
+
+## 13. views/base.php — Vista Genérica
+
+Esta vista se usa para todas las páginas secundarias que aún no tienen contenido propio. Detecta automáticamente la sección según la URL.
+
+### Lógica PHP de Detección de Sección (Líneas 9-28)
+*   **Línea 13 (`$uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/')`):** `$_SERVER['REQUEST_URI']` contiene la URL completa solicitada. `parse_url(..., PHP_URL_PATH)` extrae solo la ruta (sin query string). `trim(..., '/')` saca las barras del principio y final.
+*   **Línea 14 (`$parts = explode('/', $uri)`):** Divide la ruta en partes separadas por `/`.
+*   **Línea 15 (`$currentRoute = end($parts)`):** `end()` devuelve la última parte del arreglo. Ej: para `/organizacion_modulos/notificaciones`, devuelve `notificaciones`.
+*   **Líneas 18-25 (Mapa de Secciones):** Array asociativo que asocia cada ruta con su ícono, título y descripción. Las claves son: `notificaciones`, `prestaciones`, `cuenta`, `faq`, `buscador-farmacias`, `preguntas-frecuentes`.
+*   **Línea 28 (`$seccion = $secciones[$currentRoute] ?? [...]`):** `??` es null coalescing: si la ruta no está en el mapa, usa valores por defecto (ícono `📄`, título `Página`, descripción vacía).
+
+### Estructura HTML (Líneas 30-76)
+*   **Línea 36 (`<title><?php echo $seccion['titulo']; ?> - SaludWEB</title>`):** El título se genera dinámicamente según la sección actual.
+*   **Líneas 38-52 (Estilos CSS):** Estilos inline para la tarjeta centrada con ícono grande, título, descripción y barra de navegación horizontal con enlaces estilizados.
+*   **Líneas 57-63 (Nav Links):** Barra de navegación con enlaces a Home, Médicos, Prescripciones, Mis Rx y Ajustes. Usan `$basePath` para generar rutas absolutas.
+*   **Líneas 66-73 (Tarjeta de Contenido):** Muestra el ícono, título y descripción de la sección actual. Incluye un mensaje informativo: "Esta sección está en construcción. Pronto estará disponible." y un enlace para volver al inicio.
+
+---
+
+## 14. index.php — Punto de Entrada (Front Controller)
+
+*   **Línea 1 (`<?php`):** Apertura de la etiqueta PHP.
+*   **Línea 3 (`$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/')`):** Calcula la ruta base del proyecto para los enlaces.
+*   **Líneas 5-7 (Head HTML):** `<!DOCTYPE html>` declara HTML5. `<html lang="es">` configura el idioma español. Meta tags para charset UTF-8 y viewport responsivo.
+*   **Línea 8 (`<title>SaludWEB</title>`):** Título de la pestaña del navegador.
+*   **Línea 9 (`</head>`):** Cierre de la cabecera.
+*   **Línea 10 (`<body style="font-family:sans-serif;padding:30px;">`):** Cuerpo de la página con estilo inline básico (tipografía sans-serif y padding de 30px).
+*   **Línea 11 (`<h1>🏥 SaludWEB</h1>`):** Encabezado principal.
+*   **Línea 12 (`<p>Bienvenido al sistema de gestión de pacientes</p>`):** Mensaje de bienvenida.
+*   **Línea 13 (`<hr>`):** Línea divisoria horizontal.
+*   **Líneas 14-18 (Menú de Navegación):** Lista con enlaces:
+    *   `lista_medicos.php` → Gestión de Médicos
+    *   `lista_prescripciones.php` → Recetas Electrónicas
+    *   `mis_rx.php` → Dashboard del Paciente
+    *   `configuracion.php` → Configuración
+*   **Línea 20 (`</body></html>`):** Cierre del documento.

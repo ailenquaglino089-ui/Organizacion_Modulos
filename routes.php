@@ -25,12 +25,10 @@ $router->get('/', function () {
 // ============================================================
 // Ruta: Listado de médicos
 // ============================================================
-$router->get('/medicos', function () use ($medicoService) {
-    // use ($medicoService): hereda la variable del ámbito superior (bootstrap)
-    $medicos = $medicoService->obtenerTodos();
-    // Incluye la vista HTML que muestra la tabla de médicos
-    // La variable $medicos está disponible dentro del archivo incluido
-    include __DIR__ . '/lista_medicos.php';
+$router->get('/medicos', function () {
+    $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    header('Location: ' . $basePath . '/notificaciones');
+    exit;
 });
 
 // ============================================================
