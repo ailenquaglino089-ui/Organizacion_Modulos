@@ -60,6 +60,15 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
         /* Botón primario */
         .btn-primary { background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 800; text-decoration: none; display: inline-block; }
 
+        /* Modal FAQ */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); max-height: 80vh; overflow-y: auto; }
+        .modal-box h2 { margin-top: 0; }
+        .faq-item { text-align: left; margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 10px; border: 2px solid #e2e8f0; }
+        .faq-item h3 { margin: 0 0 4px; font-size: 15px; color: #1e293b; }
+        .faq-item p { margin: 0; font-size: 14px; color: #475569; }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-top { flex-direction: column; align-items: flex-start; }
@@ -80,7 +89,7 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
             </div>
             <!-- Botones de navegación superior con basePath dinámico -->
             <div class="header-actions">
-                <a href="<?php echo $basePath; ?>/" class="back-link">← Volver</a>
+                <a href="<?php echo $basePath; ?>/notificaciones" class="back-link">← HOME</a>
                 <a href="<?php echo $basePath; ?>/configuracion" class="config-link">⚙️ Ajustes</a>
                 <a href="<?php echo $basePath; ?>/logout" class="logout-link">🔒 Salir</a>
             </div>
@@ -136,7 +145,31 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
             <p style="margin-top: 16px; color: #64748b;">
                 WhatsApp: +54 9 11 1234-5678 | Email: soporte@saludweb.com
             </p>
-            <a href="<?php echo $basePath; ?>/preguntas-frecuentes" class="btn-primary">❓ Preguntas Frecuentes</a>
+            <button onclick="abrirFAQ()" class="btn-primary">❓ Preguntas Frecuentes</button>
+        </div>
+
+        <!-- Modal FAQ -->
+        <div class="modal-overlay" id="modalFAQ">
+            <div class="modal-box">
+                <h2>❓ Preguntas Frecuentes</h2>
+                <div class="faq-item">
+                    <h3>¿Cómo creo un nuevo médico?</h3>
+                    <p>Andá a la sección Médicos y hacé click en "+ Nuevo Médico". Completá los datos y guardá.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>¿Cómo elimino una receta?</h3>
+                    <p>En Prescripciones, hacé click en "Eliminar" sobre la receta que querés borrar.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>¿Qué es Mis Rx?</h3>
+                    <p>Es tu panel personal donde podés ver todas tus recetas electrónicas y acceder a las funciones principales del sistema.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>¿Cómo contacto con soporte?</h3>
+                    <p>Usá los canales de WhatsApp o Email que aparecen en esta misma sección.</p>
+                </div>
+                <button class="btn" style="background:#f1f5f9;color:#1e293b;border:2px solid #cbd5e1;margin-top:8px;" onclick="cerrarFAQ()">Cerrar</button>
+            </div>
         </div>
 
         <!-- ============================================================
@@ -165,5 +198,11 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
         </div>
 
     </div>
+
+    <script>
+        function abrirFAQ() { document.getElementById('modalFAQ').classList.add('open'); }
+        function cerrarFAQ() { document.getElementById('modalFAQ').classList.remove('open'); }
+        document.getElementById('modalFAQ').addEventListener('click', function(e) { if (e.target === this) cerrarFAQ(); });
+    </script>
 </body>
 </html>

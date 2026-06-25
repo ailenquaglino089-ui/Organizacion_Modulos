@@ -146,6 +146,8 @@ class MedicoService
     {
         // Verifica que exista (lanza excepción si no)
         $this->obtenerPorId($id);
+        // Desvincula las recetas asociadas antes de borrar
+        $this->repo->desvincularPrescripciones($id);
         // Elimina el médico
         $this->repo->eliminar($id);
     }

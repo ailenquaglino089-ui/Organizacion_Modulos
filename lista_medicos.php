@@ -80,7 +80,7 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
 <body>
     <div class="card">
         <!-- Enlace para volver al dashboard (home) -->
-        <a href="<?php echo $basePath; ?>/" class="btn-back">← Volver al Dashboard</a>
+        <a href="<?php echo $basePath; ?>/notificaciones" class="btn-back">← HOME</a>
 
         <!-- Encabezado con título y botón de alta -->
         <div class="header-actions">
@@ -310,17 +310,19 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
             if (!confirm('¿Estás seguro de eliminar este médico?')) return;
             try {
                 const response = await fetch(API + '/' + id, {
-                    method: 'DELETE'  // DELETE = eliminar
+                    method: 'DELETE'
                 });
+                const text = await response.text();
+                let data;
+                try { data = JSON.parse(text); } catch (e) { data = { error: text }; }
                 if (response.ok) {
                     location.reload();
                 } else {
-                    const err = await response.json();
-                    alert('Error: ' + (err.error || 'No se pudo eliminar.'));
+                    alert('Error: ' + (data.error || 'No se pudo eliminar.'));
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error de conexión con la API.');
+                alert('Error de conexión con la API. Revisá la consola (F12).');
             }
         }
 

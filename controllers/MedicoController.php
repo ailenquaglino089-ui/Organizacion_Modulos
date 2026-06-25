@@ -112,6 +112,8 @@ class MedicoController
             $this->jsonResponse(['mensaje' => 'Médico eliminado correctamente']);
         } catch (\RuntimeException $e) {
             $this->jsonResponse(['error' => $e->getMessage()], 404);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['error' => $e->getMessage()], 500);
         }
     }
 

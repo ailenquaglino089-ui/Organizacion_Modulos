@@ -123,6 +123,18 @@ try {
         FOREIGN KEY (id_medico) REFERENCES medicos(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Corrige la columna id_medico y su foreign key para permitir borrar médicos
+    // (ON DELETE SET NULL: si se borra un médico, las recetas quedan sin médico)
+    try {
+        $pdo->exec("ALTER TABLE prescripciones MODIFY id_medico INT NULL");
+    } catch (Exception $e) { /* ignorar */ }
+    try {
+        $pdo->exec("ALTER TABLE prescripciones DROP FOREIGN KEY prescripciones_ibfk_2");
+    } catch (Exception $e) { /* ignorar */ }
+    try {
+        $pdo->exec("ALTER TABLE prescripciones ADD CONSTRAINT prescripciones_ibfk_2 FOREIGN KEY (id_medico) REFERENCES medicos(id) ON DELETE SET NULL");
+    } catch (Exception $e) { /* ignorar */ }
+
     // Tabla: auditoria (registro de acciones realizadas en el sistema)
     $pdo->exec("CREATE TABLE IF NOT EXISTS auditoria (
         id INT AUTO_INCREMENT PRIMARY KEY,

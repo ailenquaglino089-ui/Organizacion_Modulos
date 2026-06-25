@@ -49,6 +49,11 @@ $seccion = $secciones[$currentRoute] ?? ['icono' => '📄', 'titulo' => 'Página
         .nav-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
         .nav-links a { text-decoration: none; color: #4f46e5; font-weight: 700; padding: 10px 20px; border-radius: 10px; background: white; border: 2px solid #4f46e5; transition: 0.3s; }
         .nav-links a:hover { background: #4f46e5; color: white; }
+
+        /* Estilos para FAQ */
+        .faq-item { text-align: left; margin-bottom: 20px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; }
+        .faq-item h3 { margin: 0 0 6px; font-size: 16px; color: #1e293b; }
+        .faq-item p { margin: 0; font-size: 14px; color: #475569; }
     </style>
 </head>
 <body>
@@ -67,8 +72,32 @@ $seccion = $secciones[$currentRoute] ?? ['icono' => '📄', 'titulo' => 'Página
             <div class="icono"><?php echo $seccion['icono']; ?></div>
             <h1><?php echo $seccion['titulo']; ?></h1>
             <p><?php echo $seccion['desc']; ?></p>
-            <!-- Mensaje informativo: la sección aún no tiene contenido propio -->
-            <p style="color:#94a3b8; font-size:14px;">Esta sección está en construcción. Pronto estará disponible.</p>
+            <?php if ($currentRoute === 'preguntas-frecuentes'): ?>
+                <div style="text-align:left;">
+                    <div class="faq-item">
+                        <h3>¿Cómo creo un nuevo médico?</h3>
+                        <p>Andá a la sección Médicos y hacé click en "+ Nuevo Médico". Completá los datos y guardá.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>¿Cómo elimino una receta?</h3>
+                        <p>En Prescripciones, hacé click en "Eliminar" sobre la receta que querés borrar. Confirmá y se eliminará.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>¿Qué es Mis Rx?</h3>
+                        <p>Es tu panel personal donde podés ver todas tus recetas electrónicas y acceder a las funciones principales del sistema.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>¿Cómo contacto con soporte?</h3>
+                        <p>Usá los canales de WhatsApp o Email que aparecen en la sección Soporte de Mis Rx o en Ajustes.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>¿Cómo activo la autenticación de dos factores?</h3>
+                        <p>Andá a Ajustes, sección Privacidad y Seguridad, y hacé click en "Activar 2FA".</p>
+                    </div>
+                </div>
+            <?php else: ?>
+                <p style="color:#94a3b8; font-size:14px;">Esta sección está en construcción. Pronto estará disponible.</p>
+            <?php endif; ?>
             <a href="<?php echo $basePath; ?>/" style="display:inline-block; text-decoration:none; color:#4f46e5; font-weight:700; padding:10px 20px; border-radius:10px; background:white; border:2px solid #4f46e5;">← Volver al inicio</a>
         </div>
     </div>

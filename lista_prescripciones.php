@@ -92,6 +92,7 @@ $mapaMedicamentos = $medsQuery->fetchAll(PDO::FETCH_KEY_PAIR);
 </head>
 <body>
     <div class="container">
+        <a href="<?php echo $basePath; ?>/notificaciones" style="display:inline-block; text-decoration:none; color:#667eea; font-weight:700; padding:10px 20px; border-radius:10px; background:white; border:2px solid #667eea; margin-bottom:16px;">← HOME</a>
         <h1>📋 MRx Digital - Lista de Recetas Electrónicas</h1>
 
         <!-- Formulario de filtros: se autoenvía al cambiar el select -->

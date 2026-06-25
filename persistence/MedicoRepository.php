@@ -146,6 +146,22 @@ class MedicoRepository
     }
 
     /**
+     * Desvincula las recetas asociadas a un médico (setea id_medico a NULL)
+     * 
+     * @param int $id ID del médico
+     */
+    public function desvincularPrescripciones(int $id): void
+    {
+        // Primero asegura que la columna acepte NULL
+        try {
+            $this->pdo->exec("ALTER TABLE prescripciones MODIFY id_medico INT NULL");
+        } catch (Exception $e) { /* ignorar */ }
+        // Desvincula las recetas
+        $stmt = $this->pdo->prepare("UPDATE prescripciones SET id_medico = NULL WHERE id_medico = ?");
+        $stmt->execute([$id]);
+    }
+
+    /**
      * Elimina un médico de la base de datos
      * 
      * @param int $id ID del médico a eliminar

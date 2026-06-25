@@ -25,10 +25,10 @@ $router->get('/', function () {
 // ============================================================
 // Ruta: Listado de médicos
 // ============================================================
-$router->get('/medicos', function () {
+$router->get('/medicos', function () use ($medicoService) {
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-    header('Location: ' . $basePath . '/notificaciones');
-    exit;
+    $medicos = $medicoService->obtenerTodos();
+    include __DIR__ . '/lista_medicos.php';
 });
 
 // ============================================================
@@ -146,6 +146,31 @@ $router->patch('/api/medicos/{id}', function ($id) use ($medicoService) {
 $router->delete('/api/medicos/{id}', function ($id) use ($medicoService) {
     $controller = new MedicoController($medicoService);
     $controller->destroy((int) $id);
+});
+
+// ============================================================
+// API REST para Prescripciones
+// ============================================================
+
+// DELETE /api/prescripciones/{id} - Eliminar una receta
+$router->delete('/api/prescripciones/{id}', function ($id) use ($pdo) {
+    try {
+        $stmt = $pdo->prepare("DELETE FROM prescripciones WHERE id = ?");
+        $stmt->execute([(int)$id]);
+        if ($stmt->rowCount() > 0) {
+            http_response_code(200);
+            header('Content-Type: application/json');
+            echo json_encode(['message' => 'Receta eliminada correctamente']);
+        } else {
+            http_response_code(404);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Receta no encontrada']);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Error al eliminar la receta']);
+    }
 });
 
 // ============================================================
