@@ -18,6 +18,20 @@ El proyecto sigue una arquitectura en **3 capas + router + controlador**:
    Base de Datos MySQL
 ```
 
+## Evolución hacia una arquitectura profesional
+
+La explicación completa de la transición desde el modelo monolítico hacia una arquitectura cliente-servidor desacoplada se encuentra en [evolucion_profesional.md](evolucion_profesional.md). Incluye el estado real del proyecto, el contrato actual de la API REST, las responsabilidades de cada capa y una hoja de ruta para continuar la migración.
+
+El diagnóstico inicial de la práctica de Programación IV está documentado en [diagnostico_proyecto_base.md](diagnostico_proyecto_base.md). Allí se detallan los componentes encontrados, las mezclas de responsabilidades con evidencia, los pendientes del equipo y el plan preliminar de mejora.
+
+La especificación aplicada del enfoque API First se encuentra en [api_first.md](api_first.md). Documenta los recursos de SaludWEB, el contrato actual y propuesto, los códigos HTTP, el formato de errores y la hoja de ruta para completar la API de prescripciones.
+
+La guía práctica para construir y probar la primera API PHP está en [primera_api_php.md](primera_api_php.md). Incluye la estructura real del backend, configuración PDO, el endpoint `GET /api/health`, respuestas JSON y ejemplos de prueba.
+
+La práctica implementada del CRUD con MySQL, PDO y Repository está documentada en [crud_clientes_api.md](crud_clientes_api.md). Allí se describen los componentes, el contrato de `/api/clientes`, las validaciones, los códigos HTTP y las pruebas manuales.
+
+El sistema se encuentra en una etapa híbrida: conserva páginas renderizadas con PHP, pero las operaciones de médicos ya se realizan mediante `fetch` contra endpoints JSON. Esta evolución gradual permite mantener la funcionalidad mientras se separan progresivamente el frontend y el backend.
+
 ---
 
 ## Glosario Inglés → Español

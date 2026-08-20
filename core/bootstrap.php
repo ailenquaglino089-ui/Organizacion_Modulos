@@ -21,12 +21,16 @@ require_once __DIR__ . '/../db.php';
 
 // Carga la capa de persistencia (repositorio de médicos)
 require_once __DIR__ . '/../persistence/MedicoRepository.php';
+require_once __DIR__ . '/../persistence/ClienteRepository.php';
 
 // Carga la capa de negocio (servicio de médicos)
 require_once __DIR__ . '/../services/MedicoService.php';
+require_once __DIR__ . '/../services/ClienteService.php';
 
 // Carga el controlador de médicos (maneja HTTP)
 require_once __DIR__ . '/../controllers/MedicoController.php';
+require_once __DIR__ . '/../controllers/ClienteController.php';
+require_once __DIR__ . '/../helpers/Response.php';
 
 // Calcula la ruta base del proyecto
 // dirname($_SERVER['SCRIPT_NAME']) devuelve algo como "/Organizacion_Modulos"
@@ -49,6 +53,11 @@ $medicoRepo = new MedicoRepository($pdo);
 // Crea el servicio de médicos, inyectándole el repositorio
 // El servicio contiene la lógica de negocio (validaciones, reglas)
 $medicoService = new MedicoService($medicoRepo);
+
+// Dependencias del CRUD de clientes
+$clienteRepo = new ClienteRepository($pdo);
+$clienteService = new ClienteService($clienteRepo);
+$clienteController = new ClienteController($clienteService);
 
 // Las variables $router, $medicoRepo, $medicoService y $pdo
 // quedan disponibles en routes.php que es quien incluye este archivo

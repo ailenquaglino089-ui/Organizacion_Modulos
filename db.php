@@ -95,6 +95,15 @@ try {
         creado_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Tabla: clientes (CRUD de práctica con Repository y API REST)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS clientes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        email VARCHAR(150) NOT NULL UNIQUE,
+        telefono VARCHAR(30) NULL,
+        creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     // Tabla: medicamentos
     $pdo->exec("CREATE TABLE IF NOT EXISTS medicamentos (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -191,6 +200,18 @@ try {
         ];
         foreach ($defaults as $p) {
             $stmt->execute($p);
+        }
+    }
+
+    // Clientes de ejemplo para probar el CRUD de la API
+    $clientesCount = (int)$pdo->query('SELECT COUNT(*) FROM clientes')->fetchColumn();
+    if ($clientesCount === 0) {
+        $stmt = $pdo->prepare('INSERT INTO clientes (nombre, email, telefono) VALUES (?, ?, ?)');
+        foreach ([
+            ['Ana Pérez', 'ana@demo.com', '3434000001'],
+            ['Luis Gómez', 'luis@demo.com', '3434000002'],
+        ] as $cliente) {
+            $stmt->execute($cliente);
         }
     }
 

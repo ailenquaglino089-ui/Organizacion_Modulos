@@ -22,6 +22,18 @@ $router->get('/', function () {
     exit;  // Detiene la ejecución para que no siga procesando
 });
 
+// GET /api/health - Verifica que la API esté disponible
+$router->get('/api/health', function () {
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'status' => 'ok',
+        'message' => 'API funcionando',
+        'timestamp' => date('c'),
+        'version' => '1.0.0',
+    ], JSON_UNESCAPED_UNICODE);
+});
+
 // ============================================================
 // Ruta: Listado de médicos
 // ============================================================
@@ -146,6 +158,36 @@ $router->patch('/api/medicos/{id}', function ($id) use ($medicoService) {
 $router->delete('/api/medicos/{id}', function ($id) use ($medicoService) {
     $controller = new MedicoController($medicoService);
     $controller->destroy((int) $id);
+});
+
+// ============================================================
+// API REST para Clientes
+// El SQL CRUD está encapsulado en ClienteRepository.
+// ============================================================
+
+// GET /api/clientes - Listar todos los clientes
+$router->get('/api/clientes', function () use ($clienteController) {
+    $clienteController->index();
+});
+
+// GET /api/clientes/{id} - Obtener un cliente por ID
+$router->get('/api/clientes/{id}', function ($id) use ($clienteController) {
+    $clienteController->show((int) $id);
+});
+
+// POST /api/clientes - Crear un cliente
+$router->post('/api/clientes', function () use ($clienteController) {
+    $clienteController->store();
+});
+
+// PUT /api/clientes/{id} - Actualizar un cliente completo
+$router->put('/api/clientes/{id}', function ($id) use ($clienteController) {
+    $clienteController->update((int) $id);
+});
+
+// DELETE /api/clientes/{id} - Eliminar un cliente
+$router->delete('/api/clientes/{id}', function ($id) use ($clienteController) {
+    $clienteController->destroy((int) $id);
 });
 
 // ============================================================
