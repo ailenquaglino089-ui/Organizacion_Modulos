@@ -36,7 +36,9 @@ class MedicoController
      */
     public function index(): void
     {
+        // Solicita la colección de médicos al servicio.
         $medicos = $this->service->obtenerTodos();
+        // Envía la colección con estado HTTP 200.
         $this->jsonResponse($medicos);  // 200 OK por defecto
     }
 
@@ -49,7 +51,9 @@ class MedicoController
     public function show(int $id): void
     {
         try {
+            // Busca el médico usando el identificador de la ruta.
             $medico = $this->service->obtenerPorId($id);
+            // Envía el médico encontrado como JSON.
             $this->jsonResponse($medico);
         } catch (\RuntimeException $e) {
             // RuntimeException con código 404 -> médico no encontrado
@@ -71,6 +75,7 @@ class MedicoController
             // true = devolver como array asociativo (no como objeto)
             $data = json_decode(file_get_contents('php://input'), true);
 
+            // Delega la validación y creación al servicio.
             $medico = $this->service->crear($data ?? []);
             // 201 = Created (recurso creado exitosamente)
             $this->jsonResponse($medico, 201);
@@ -91,8 +96,11 @@ class MedicoController
     public function update(int $id): void
     {
         try {
+            // Convierte el cuerpo JSON en datos PHP.
             $data = json_decode(file_get_contents('php://input'), true);
+            // Actualiza el médico mediante la capa de negocio.
             $medico = $this->service->actualizar($id, $data ?? []);
+            // Devuelve la versión actualizada.
             $this->jsonResponse($medico);
         } catch (\RuntimeException $e) {
             $this->jsonResponse(['error' => $e->getMessage()], 404);
@@ -109,7 +117,9 @@ class MedicoController
     public function destroy(int $id): void
     {
         try {
+            // Solicita al servicio la eliminación del médico.
             $this->service->eliminar($id);
+            // Confirma la operación con una respuesta JSON.
             $this->jsonResponse(['mensaje' => 'Médico eliminado correctamente']);
         } catch (\RuntimeException $e) {
             $this->jsonResponse(['error' => $e->getMessage()], 404);

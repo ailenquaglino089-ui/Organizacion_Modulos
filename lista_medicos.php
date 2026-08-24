@@ -146,7 +146,7 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
                 <!-- Input oculto: si tiene valor, estamos editando; si no, creando -->
                 <input type="hidden" id="medicoId">
 
-                <label for="nombre">Nombre *</label>
+                <label for="nombre">Nombre</label>
                 <input type="text" id="nombre" required>
 
                 <label for="matricula">Matrícula</label>

@@ -16,6 +16,7 @@ require_once __DIR__ . '/core/bootstrap.php';
 // Ruta raíz: redirige al listado de médicos
 // ============================================================
 $router->get('/', function () {
+    // Calcula el prefijo público de la aplicación.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
     // header('Location: ...') envía una redirección HTTP al navegador
     // El navegador automáticamente va a la nueva URL
@@ -25,8 +26,11 @@ $router->get('/', function () {
 
 // GET /api/health - Verifica que la API esté disponible
 $router->get('/api/health', function () {
+    // Indica que la API está disponible.
     http_response_code(200);
+    // Declara el tipo de contenido de la respuesta.
     header('Content-Type: application/json; charset=utf-8');
+    // Devuelve el estado y la versión de la API.
     echo json_encode([
         'status' => 'ok',
         'message' => 'API funcionando',
@@ -39,8 +43,11 @@ $router->get('/api/health', function () {
 // Ruta: Listado de médicos
 // ============================================================
 $router->get('/medicos', function () use ($medicoService) {
+    // Calcula la ruta base para los enlaces de la vista.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // Obtiene los médicos mediante el servicio.
     $medicos = $medicoService->obtenerTodos();
+    // Renderiza la vista del listado.
     include __DIR__ . '/lista_medicos.php';
 });
 
@@ -75,32 +82,44 @@ $router->get('/configuracion', function () {
 // que detecta qué sección es por la URL y muestra el contenido adecuado
 
 $router->get('/notificaciones', function () {
+    // Calcula la ruta base de la página solicitada.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // Renderiza la plantilla común.
     include __DIR__ . '/views/base.php';
 });
 
 $router->get('/prestaciones', function () {
+    // Calcula la ruta base de la página solicitada.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // Renderiza la plantilla común.
     include __DIR__ . '/views/base.php';
 });
 
 $router->get('/cuenta', function () {
+    // Calcula la ruta base de la página solicitada.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // Renderiza la plantilla común.
     include __DIR__ . '/views/base.php';
 });
 
 $router->get('/faq', function () {
+    // Calcula la ruta base de la página solicitada.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // Renderiza la plantilla común.
     include __DIR__ . '/views/base.php';
 });
 
 $router->get('/buscador-farmacias', function () {
+    // Calcula la ruta base de la página solicitada.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // Renderiza la plantilla común.
     include __DIR__ . '/views/base.php';
 });
 
 $router->get('/preguntas-frecuentes', function () {
+    // Calcula la ruta base de la página solicitada.
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    // Renderiza la plantilla común.
     include __DIR__ . '/views/base.php';
 });
 
@@ -123,7 +142,9 @@ $router->get('/logout', function () {
 
 // GET /api/medicos - Obtener todos los médicos (listado JSON)
 $router->get('/api/medicos', function () use ($medicoService) {
+    // Crea el controlador con el servicio configurado.
     $controller = new MedicoController($medicoService);
+    // Ejecuta la operación de listado.
     $controller->index();
 });
 
@@ -131,6 +152,7 @@ $router->get('/api/medicos', function () use ($medicoService) {
 // {id} es un parámetro dinámico: el Router captura el valor de la URL
 // Ej: /api/medicos/5 -> $id = 5
 $router->get('/api/medicos/{id}', function ($id) use ($medicoService) {
+    // Crea el controlador con el servicio configurado.
     $controller = new MedicoController($medicoService);
     $controller->show((int) $id);  // (int) convierte a entero por seguridad
 });
@@ -138,13 +160,17 @@ $router->get('/api/medicos/{id}', function ($id) use ($medicoService) {
 // POST /api/medicos - Crear un nuevo médico (alta)
 // Los datos se envían en el cuerpo de la petición como JSON
 $router->post('/api/medicos', function () use ($medicoService) {
+    // Crea el controlador con el servicio configurado.
     $controller = new MedicoController($medicoService);
+    // Ejecuta la operación de creación.
     $controller->store();
 });
 
 // PUT /api/medicos/{id} - Actualizar un médico completo
 $router->put('/api/medicos/{id}', function ($id) use ($medicoService) {
+    // Crea el controlador con el servicio configurado.
     $controller = new MedicoController($medicoService);
+    // Ejecuta la operación de actualización.
     $controller->update((int) $id);
 });
 

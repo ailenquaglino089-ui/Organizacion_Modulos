@@ -41,6 +41,7 @@ class MedicoRepository
      */
     public function obtenerTodos(): array
     {
+        // Ejecuta la consulta que obtiene la colección ordenada.
         // query() ejecuta una consulta SQL directamente (sin parámetros)
         $stmt = $this->pdo->query(
             "SELECT * FROM medicos ORDER BY activo DESC, nombre ASC"
@@ -48,6 +49,7 @@ class MedicoRepository
         // fetchAll() obtiene TODAS las filas como un arreglo
         // PDO::FETCH_ASSOC: cada fila es un array asociativo [columna => valor]
         // Ej: [ ['id' => 1, 'nombre' => 'Dr. Pérez'], ... ]
+        // Convierte el resultado de la consulta en un array asociativo.
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -59,6 +61,7 @@ class MedicoRepository
      */
     public function obtenerPorId(int $id): ?array
     {
+        // Prepara la búsqueda parametrizada por identificador.
         // Consulta preparada (prepared statement)
         // El ? es un marcador de posición que se reemplaza con el valor real
         // Esto PREVIENE inyección SQL (hackeo por datos maliciosos)
@@ -66,14 +69,17 @@ class MedicoRepository
 
         // execute() ejecuta la consulta con los valores reales
         // Pasa [ $id ] como arreglo para reemplazar los ?
+        // Ejecuta la consulta sustituyendo el marcador por el ID recibido.
         $stmt->execute([$id]);
 
         // fetch() obtiene UNA sola fila (la primera)
         // Devuelve false si no hay resultados
+        // Lee la primera fila devuelta por la consulta.
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Operador ?: si $result es false/null, devuelve null
         // Si no, devuelve $result
+        // Normaliza la ausencia de resultados a null.
         return $result ?: null;
     }
 
@@ -85,6 +91,7 @@ class MedicoRepository
      */
     public function crear(array $data): int
     {
+        // Prepara la inserción del nuevo médico.
         // INSERT INTO = insertar una nueva fila en la tabla
         // Los ? son marcadores de posición para los valores
         $stmt = $this->pdo->prepare(
@@ -94,6 +101,7 @@ class MedicoRepository
         // Ejecuta la consulta con los datos recibidos
         // ?? = null coalescing operator: si no existe la clave, usa el valor por defecto
         // $data['matricula'] ?? null = si no viene matricula, pone null
+        // Envía los valores de la nueva fila a la consulta preparada.
         $stmt->execute([
             $data['nombre'],            // Obligatorio
             $data['matricula'] ?? null,  // Opcional
@@ -103,6 +111,7 @@ class MedicoRepository
 
         // lastInsertId() devuelve el ID autogenerado por el AUTO_INCREMENT
         // (int) asegura que sea un número entero
+        // Devuelve el identificador asignado por MySQL.
         return (int) $this->pdo->lastInsertId();
     }
 
@@ -116,12 +125,14 @@ class MedicoRepository
      */
     public function actualizar(int $id, array $data): bool
     {
+        // Inicializa las partes dinámicas de la consulta de actualización.
         // Construye la consulta DINÁMICAMENTE según los campos recibidos
         // array_key_exists() verifica si la clave existe en el array
         $campos = [];  // Partes SET de la consulta
         $valores = []; // Valores a reemplazar
 
         // Itera sobre los campos permitidos que pueden actualizarse
+        // Recorre los nombres de columna que pueden modificarse.
         foreach (['nombre', 'matricula', 'especialidad', 'activo'] as $campo) {
             // array_key_exists() = verifica si la clave está presente (incluso si es null)
             if (array_key_exists($campo, $data)) {
@@ -131,17 +142,21 @@ class MedicoRepository
         }
 
         // Si no hay campos para actualizar, retorna false
+        // Evita ejecutar una actualización sin campos.
         if (empty($campos)) {
             return false;
         }
 
         // Agrega el ID al final del arreglo de valores
+        // Añade el identificador como último parámetro de la consulta.
         $valores[] = $id;
 
         // implode() une los campos con coma: "nombre = ?, matricula = ?"
+        // Construye el SQL con los campos previamente filtrados.
         $sql = "UPDATE medicos SET " . implode(', ', $campos) . " WHERE id = ?";
         // Ej: "UPDATE medicos SET nombre = ?, matricula = ? WHERE id = ?"
 
+        // Prepara y ejecuta la actualización.
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute($valores);
     }
@@ -153,12 +168,15 @@ class MedicoRepository
      */
     public function desvincularPrescripciones(int $id): void
     {
+        // Ajusta la columna para permitir recetas sin médico asignado.
         // Primero asegura que la columna acepte NULL
         try {
             $this->pdo->exec("ALTER TABLE prescripciones MODIFY id_medico INT NULL");
         } catch (Exception $e) { /* ignorar */ }
         // Desvincula las recetas
+        // Prepara la desvinculación de las recetas del médico.
         $stmt = $this->pdo->prepare("UPDATE prescripciones SET id_medico = NULL WHERE id_medico = ?");
+        // Ejecuta la actualización usando el ID del médico.
         $stmt->execute([$id]);
     }
 
@@ -170,7 +188,9 @@ class MedicoRepository
      */
     public function eliminar(int $id): bool
     {
+        // Prepara la eliminación parametrizada del médico.
         $stmt = $this->pdo->prepare("DELETE FROM medicos WHERE id = ?");
+        // Ejecuta la eliminación con el identificador recibido.
         $stmt->execute([$id]);
 
         // rowCount() = cantidad de filas afectadas por la consulta
