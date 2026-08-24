@@ -1,4 +1,5 @@
 <?php
+// Consultas PDO y persistencia de médicos.
 // ============================================================
 // persistence/MedicoRepository.php - Capa de persistencia
 // ============================================================

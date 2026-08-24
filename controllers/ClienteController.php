@@ -1,4 +1,5 @@
 <?php
+// Controlador HTTP que coordina el CRUD de clientes.
 
 // ClienteController traduce peticiones HTTP a llamadas del servicio.
 // No contiene SQL: coordina JSON, códigos HTTP y respuestas públicas.

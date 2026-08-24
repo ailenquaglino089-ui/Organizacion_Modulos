@@ -1,4 +1,5 @@
 <?php
+// Reglas de negocio y validaciones de médicos.
 // ============================================================
 // services/MedicoService.php - Capa de negocio (lógica de aplicación)
 // ============================================================

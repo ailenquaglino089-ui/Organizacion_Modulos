@@ -1,4 +1,5 @@
 <?php
+// Panel visual del paciente para consultar sus recetas.
 // Calcula la ruta base del proyecto para los enlaces
 $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
 ?>

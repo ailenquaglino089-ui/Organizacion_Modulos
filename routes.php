@@ -1,4 +1,5 @@
 <?php
+// Registro de rutas web y endpoints JSON de la aplicación.
 // ============================================================
 // routes.php - Definición de rutas del proyecto
 // ============================================================

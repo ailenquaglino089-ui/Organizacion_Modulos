@@ -1,4 +1,5 @@
 <?php
+// Formato común para las respuestas JSON de la API.
 
 // Response centraliza el formato de todas las respuestas JSON de la API.
 // Así los clientes reciben siempre las mismas claves de éxito y error.

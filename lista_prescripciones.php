@@ -1,4 +1,5 @@
 <?php
+// Vista de prescripciones con filtros y acceso de datos pendiente de migración.
 // Calcula la ruta base del proyecto para usarla en enlaces y llamadas API
 $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
 

@@ -1,4 +1,5 @@
 <?php
+// Diagnóstico aislado de la conexión PDO con MySQL.
 // Prueba aislada de conexión PDO sin cargar el esquema completo de la aplicación.
 try {
     // Usa la configuración local de XAMPP para abrir una conexión a MySQL.

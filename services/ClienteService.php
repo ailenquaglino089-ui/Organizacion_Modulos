@@ -1,4 +1,5 @@
 <?php
+// Reglas de negocio y validaciones de clientes.
 
 // ClienteService contiene las reglas de negocio del CRUD de clientes.
 // El servicio valida y normaliza datos antes de delegar en el repositorio.

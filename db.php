@@ -1,4 +1,5 @@
 <?php
+// Conexión, esquema y datos iniciales de la base de datos local.
 // ============================================================
 // db.php - Conexión a la base de datos MySQL y creación de tablas
 // ============================================================

@@ -1,4 +1,5 @@
 <?php
+// Inicialización de dependencias, sesión y conexión PDO de la aplicación.
 // ============================================================
 // core/bootstrap.php - Archivo de arranque (bootstrap) del sistema
 // ============================================================

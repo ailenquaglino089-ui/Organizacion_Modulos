@@ -18,6 +18,19 @@ El proyecto sigue una arquitectura en **3 capas + router + controlador**:
    Base de Datos MySQL
 ```
 
+## Flujo comentado de una solicitud HTTP
+
+El recorrido completo de una operación puede entenderse así:
+
+1. **Cliente HTTP: inicia la solicitud.** El navegador, una aplicación móvil o cualquier consumidor envía una petición usando una URL, un método HTTP y, cuando corresponde, datos JSON. En SaludWEB, las vistas como `lista_medicos.php` inician solicitudes con `fetch()`.
+2. **Controlador: recibe y delega la petición.** El `Router` identifica la ruta y deriva la solicitud a `MedicoController` o `ClienteController`. El controlador lee los datos HTTP, llama al servicio y prepara la respuesta JSON; no ejecuta SQL.
+3. **Servicio: aplica reglas de negocio.** `MedicoService` y `ClienteService` validan los datos, normalizan la entrada y verifican reglas como la existencia del registro. El servicio decide si la operación puede continuar, pero no conoce HTML ni detalles de SQL.
+4. **Repository: accede a la base de datos.** `MedicoRepository` y `ClienteRepository` ejecutan consultas preparadas mediante PDO. Esta capa convierte la operación del servicio en `SELECT`, `INSERT`, `UPDATE` o `DELETE` y devuelve datos limpios.
+5. **MySQL: almacena la información.** La base de datos persiste los registros y devuelve resultados o errores técnicos. `db.php` prepara la conexión, el esquema y los datos iniciales del entorno local.
+6. **La respuesta vuelve al cliente.** El resultado regresa por el servicio y el controlador lo transforma en JSON con un código HTTP adecuado. El cliente interpreta esa respuesta y actualiza la pantalla.
+
+La dirección de ida es **Cliente HTTP → Router → Controlador → Servicio → Repository → MySQL**. La respuesta vuelve en sentido contrario. Cada capa tiene una responsabilidad concreta y evita que la siguiente capa necesite conocer detalles internos.
+
 ## Evolución hacia una arquitectura profesional
 
 La explicación completa de la transición desde el modelo monolítico hacia una arquitectura cliente-servidor desacoplada se encuentra en [evolucion_profesional.md](evolucion_profesional.md). Incluye el estado real del proyecto, el contrato actual de la API REST, las responsabilidades de cada capa y una hoja de ruta para continuar la migración.
@@ -25,6 +38,12 @@ La explicación completa de la transición desde el modelo monolítico hacia una
 El diagnóstico inicial de la práctica de Programación IV está documentado en [diagnostico_proyecto_base.md](diagnostico_proyecto_base.md). Allí se detallan los componentes encontrados, las mezclas de responsabilidades con evidencia, los pendientes del equipo y el plan preliminar de mejora.
 
 La especificación aplicada del enfoque API First se encuentra en [api_first.md](api_first.md). Documenta los recursos de SaludWEB, el contrato actual y propuesto, los códigos HTTP, el formato de errores y la hoja de ruta para completar la API de prescripciones.
+
+El módulo de acceso profesional a datos en PHP se encuentra en [acceso_profesional_datos_php.md](acceso_profesional_datos_php.md). Explica PDO, consultas preparadas, SQL Injection, Repository, validación en servidor y separación de responsabilidades.
+
+El módulo de autenticación en aplicaciones modernas se encuentra en [autenticacion_aplicaciones_modernas.md](autenticacion_aplicaciones_modernas.md). Explica sesiones, cookies, JWT, rutas protegidas, roles, permisos, OAuth/OIDC y riesgos habituales de seguridad.
+
+La explicación archivo por archivo del proyecto se encuentra en [comentario_archivos_proyecto.md](comentario_archivos_proyecto.md). Incluye la función de cada PHP, las copias de backend y web, la documentación y las precauciones de los archivos de diagnóstico.
 
 La guía práctica para construir y probar la primera API PHP está en [primera_api_php.md](primera_api_php.md). Incluye la estructura real del backend, configuración PDO, el endpoint `GET /api/health`, respuestas JSON y ejemplos de prueba.
 

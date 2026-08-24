@@ -1,4 +1,5 @@
 <?php
+// Consultas PDO y persistencia de clientes.
 
 // ClienteRepository encapsula todo el SQL de la entidad clientes.
 // No conoce HTTP, sesiones ni JSON: recibe datos PHP y devuelve resultados.

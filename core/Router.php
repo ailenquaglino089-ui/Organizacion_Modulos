@@ -1,4 +1,5 @@
 <?php
+// Enrutador que relaciona peticiones HTTP con sus handlers.
 // ============================================================
 // core/Router.php - Enrutador de URLs
 // ============================================================

@@ -1,4 +1,5 @@
 <?php
+// Diagnóstico de MySQL usando la dirección local 127.0.0.1.
 // Segunda prueba de conexión: utiliza 127.0.0.1 y consulta la versión de MySQL.
 $host = '127.0.0.1';
 $dbName = 'pacientes';

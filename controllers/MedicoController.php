@@ -1,4 +1,5 @@
 <?php
+// Controlador HTTP que coordina las operaciones de médicos.
 // ============================================================
 // controllers/MedicoController.php - Capa de controlador HTTP
 // ============================================================

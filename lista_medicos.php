@@ -1,4 +1,5 @@
 <?php
+// Vista de médicos que consulta la API para las operaciones del CRUD.
 // Calcula la ruta base del proyecto para usarla en los enlaces
 // Ej: "/Organizacion_Modulos"
 $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');

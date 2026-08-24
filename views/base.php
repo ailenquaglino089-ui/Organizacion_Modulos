@@ -1,4 +1,5 @@
 <?php
+// Plantilla común para renderizar las secciones de la interfaz.
 // ============================================================
 // views/base.php - Vista genérica para páginas secundarias
 // ============================================================

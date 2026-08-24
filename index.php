@@ -1,4 +1,5 @@
 <?php
+// Punto de entrada principal que carga y despacha las rutas de la aplicación.
 // Punto de entrada principal del proyecto (Front Controller / Controlador Frontal)
 // Todas las peticiones HTTP llegan aquí gracias al .htaccess
 
