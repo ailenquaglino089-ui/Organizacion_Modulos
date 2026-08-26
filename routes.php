@@ -12,6 +12,57 @@
 // bootstrap.php crea las variables: $router, $medicoRepo, $medicoService, $pdo
 require_once __DIR__ . '/core/bootstrap.php';
 
+// POST /api/login: valida credenciales y devuelve un JWT temporal.
+$router->post('/api/login', function () use ($pdo) {
+    // Lee el cuerpo JSON sin registrar la contraseña recibida.
+    $data = json_decode(file_get_contents('php://input'), true);
+    // Comprueba que el cuerpo sea un objeto JSON válido.
+    if (!is_array($data) || !filter_var($data['email'] ?? null, FILTER_VALIDATE_EMAIL) || !is_string($data['password'] ?? null) || $data['password'] === '') {
+        Response::error('Email y contraseña son requeridos', 400);
+    }
+
+    // Busca el usuario mediante una consulta preparada contra inyección SQL.
+    $statement = $pdo->prepare('SELECT id, email, password_hash, rol FROM users WHERE email = :email LIMIT 1');
+    $statement->execute([':email' => strtolower(trim($data['email']))]);
+    $user = $statement->fetch(PDO::FETCH_ASSOC);
+    // Usa el mismo mensaje para usuario inexistente y contraseña incorrecta.
+    if (!$user || !password_verify($data['password'], $user['password_hash'])) {
+        Response::error('Credenciales inválidas', 401);
+    }
+
+    // Responde con el token firmado y sin exponer el hash.
+    Response::ok(['token' => Auth::issue($user)], 'Login correcto');
+});
+
+// GET /api/me: devuelve el usuario representado por un JWT válido.
+$router->get('/api/me', function () use ($pdo) {
+    try {
+        // Exige un token válido antes de consultar datos privados.
+        $claims = Auth::requireUser();
+        // Busca datos actuales por el subject incluido en el token.
+        $statement = $pdo->prepare('SELECT id, email, rol, created_at FROM users WHERE id = :id LIMIT 1');
+        $statement->execute([':id' => (int) ($claims['sub'] ?? 0)]);
+        $user = $statement->fetch(PDO::FETCH_ASSOC);
+        // Un usuario eliminado ya no puede usar el token.
+        if (!$user) {
+            Response::error('Usuario no encontrado', 401);
+        }
+
+        // Devuelve únicamente información pública de la cuenta.
+        Response::ok(['user' => $user]);
+    } catch (AuthenticationException $exception) {
+        // Convierte cualquier fallo de autenticación en HTTP 401.
+        Response::error($exception->getMessage(), 401);
+    } catch (Throwable $exception) {
+        // Oculta errores internos y los deja disponibles en los logs del servidor.
+        error_log($exception->getMessage());
+        Response::error('Error interno del servidor', 500);
+    }
+});
+
+// Middleware compartido por las rutas que modifican o exponen datos privados.
+$authMiddleware = [Auth::middleware()];
+
 // ============================================================
 // Ruta raíz: redirige al listado de médicos
 // ============================================================
@@ -195,27 +246,27 @@ $router->delete('/api/medicos/{id}', function ($id) use ($medicoService) {
 // GET /api/clientes - Listar todos los clientes
 $router->get('/api/clientes', function () use ($clienteController) {
     $clienteController->index();
-});
+}, $authMiddleware);
 
 // GET /api/clientes/{id} - Obtener un cliente por ID
 $router->get('/api/clientes/{id}', function ($id) use ($clienteController) {
     $clienteController->show((int) $id);
-});
+}, $authMiddleware);
 
 // POST /api/clientes - Crear un cliente
 $router->post('/api/clientes', function () use ($clienteController) {
     $clienteController->store();
-});
+}, $authMiddleware);
 
 // PUT /api/clientes/{id} - Actualizar un cliente completo
 $router->put('/api/clientes/{id}', function ($id) use ($clienteController) {
     $clienteController->update((int) $id);
-});
+}, $authMiddleware);
 
 // DELETE /api/clientes/{id} - Eliminar un cliente
 $router->delete('/api/clientes/{id}', function ($id) use ($clienteController) {
     $clienteController->destroy((int) $id);
-});
+}, $authMiddleware);
 
 // ============================================================
 // API REST para Prescripciones
@@ -240,7 +291,7 @@ $router->delete('/api/prescripciones/{id}', function ($id) use ($pdo) {
         header('Content-Type: application/json');
         echo json_encode(['error' => 'Error al eliminar la receta']);
     }
-});
+}, $authMiddleware);
 
 // ============================================================
 // Manejador de rutas no encontradas (404)

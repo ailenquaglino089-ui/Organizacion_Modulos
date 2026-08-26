@@ -20,6 +20,13 @@ require_once __DIR__ . '/Router.php';
 // Esto ejecuta db.php que crea la variable $pdo (objeto PDO)
 require_once __DIR__ . '/../db.php';
 
+// Carga las clases externas instaladas por Composer, incluida firebase/php-jwt.
+$composerAutoload = __DIR__ . '/../vendor/autoload.php';
+if (!is_file($composerAutoload)) {
+	throw new RuntimeException('Faltan dependencias. Ejecuta: php composer.phar install');
+}
+require_once $composerAutoload;
+
 // Carga la capa de persistencia (repositorio de médicos)
 require_once __DIR__ . '/../persistence/MedicoRepository.php';
 require_once __DIR__ . '/../persistence/ClienteRepository.php';
@@ -32,6 +39,8 @@ require_once __DIR__ . '/../services/ClienteService.php';
 require_once __DIR__ . '/../controllers/MedicoController.php';
 require_once __DIR__ . '/../controllers/ClienteController.php';
 require_once __DIR__ . '/../helpers/Response.php';
+// Carga la autenticación JWT y sus excepciones antes de registrar las rutas.
+require_once __DIR__ . '/../helpers/Auth.php';
 
 // Calcula la ruta base del proyecto
 // dirname($_SERVER['SCRIPT_NAME']) devuelve algo como "/Organizacion_Modulos"
