@@ -1,0 +1,17 @@
+{
+  "workbench.sideBar.location": "left",
+  "outline.showItems": true,
+  "workbench.tree.indent": 12,
+  "workbench.list.openMode": "singleClick",
+  "explorer.openEditors.visible": 1,
+  "workbench.editor.showTabs": "multiple",
+  "workbench.editor.enablePreview": true,
+  "workbench.editor.enablePreviewFromQuickOpen": true,
+  "workbench.startupEditor": "welcomePage",
+  "workbench.statusBar.visible": true,
+  "explorer.autoReveal": true,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000
+}

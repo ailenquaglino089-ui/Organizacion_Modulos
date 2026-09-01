@@ -1,0 +1,39 @@
+{
+  "workbench": {
+    "sideBar": {
+      "isVisible": true,
+      "width": 250,
+      "viewlets": [
+        {
+          "id": "outlineViewlet",
+          "visible": true,
+          "order": 0
+        },
+        {
+          "id": "timelineViewlet",
+          "visible": true,
+          "order": 1
+        },
+        {
+          "id": "openEditorsViewlet",
+          "visible": true,
+          "order": 2
+        },
+        {
+          "id": "explorer",
+          "visible": true,
+          "order": 3
+        }
+      ]
+    },
+    "activityBar": {
+      "visible": true
+    },
+    "panel": {
+      "position": "bottom"
+    }
+  },
+  "explorer": {
+    "openEditors.visible": 1
+  }
+}

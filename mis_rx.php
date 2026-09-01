@@ -31,7 +31,8 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 15px; flex-wrap: wrap; }
         .logo-container { display: flex; align-items: center; gap: 10px; }
         .logo-box { background: var(--primary); color: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 24px; font-weight: bold; }
-        .logo-text { font-size: 28px; font-weight: 800; }
+        .logo-text { font-size: 2View: Reset View Locations
+        x; font-weight: 800; }
         .logo-pro { background: #fee2e2; color: var(--danger); padding: 2px 8px; border-radius: 6px; font-size: 14px; margin-left: 5px; }
 
         /* Botones del encabezado (Volver, Ajustes, Salir) */
